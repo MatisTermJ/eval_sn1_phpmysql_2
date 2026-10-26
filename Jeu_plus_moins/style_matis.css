@@ -1,0 +1,99 @@
+body{
+    margin:0;
+    font-family: monospace;
+    text-align:center;
+}
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(0, 0, 0);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    color: white;
+}
+.site-header .container { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; padding: 14px 16px; }
+.logo { font-weight: 800; font-size: 1.4rem; color: var(--text); text-decoration: none; letter-spacing: -0.03em; }
+.logo span { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nav { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
+.nav a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: .95rem; padding: 8px 14px; border-radius: 999px; transition: .2s; }
+.nav a:not(.btn):hover { color: var(--text); background: var(--field); }
+.nav a.btn { color: #fff; margin-left: 8px; }
+.icon { width: 16px; height: 16px; vertical-align: -2px; margin-right: 4px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+main.container { padding-top: 32px; padding-bottom: 64px; }
+
+.site-footer { text-align: center; color: var(--muted); font-size: .9rem; padding: 32px 0; }
+
+
+
+.stat-container {
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 0 16px;
+    color: #20243a;
+    font-family: monospace;
+    text-align:center;
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: #f5f6fa;
+    border: 1px solid #dfe2ee;
+    border-radius: 6px;
+}
+
+.stat-card strong {
+    font-size: 2.25rem;
+}
+
+.stat-card span {
+    color: #626b84;
+    font-size: 0.8rem;
+}
+
+.stat-container table {
+    width: 100%;
+    margin-bottom: 22px;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+.stat-container table {
+    width: 100%;
+    margin-bottom: 22px;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.stat-container th,
+.stat-container td {
+    padding: 5px 7px;
+    border: 1px solid #dfe2ee;
+    text-align: center;
+}
+
+.stat-container th {
+    background: #252943;
+    color: #fff;
+    font-weight: 600;
+}
+
+.stat-container tbody tr:nth-child(even) {
+    background: #f1f2f7;
+}
+
+.stat-container h2 {
+    margin: 20px 0 8px;
+    font-size: 1rem;
+}
