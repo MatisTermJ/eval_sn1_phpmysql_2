@@ -1,133 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="jeux.css">
+    <title>Plus ou Moins</title>
+</head>
+<body>
+    <?php
+    $_SESSION['name'] = "link";
+    require "header.php";
+    ?>
 <?php
+
 session_start();
 
-//Les niveaux disponibles 
+// Niveaux disponibles pour le jeu
 $niveaux = [
     'facile'    => ['nom' => 'Facile',    'max' => 50,   'essais' => 10],
-    'normal'    => ['nom' => 'Normal',    'max' => 100,  'essais' => 8],
+    'normale'   => ['nom' => 'Normale',   'max' => 100,  'essais' => 8],
     'difficile' => ['nom' => 'Difficile', 'max' => 500,  'essais' => 10],
     'expert'    => ['nom' => 'Expert',    'max' => 1000, 'essais' => 10],
 ];
 
-$message = "";
+$message = '';
 
-//Retour au menu
+// Retour au choix du niveau
 if (isset($_POST['menu'])) {
-    unset($_SESSION['jeu']);   // on efface la partie en cours
+    unset($_SESSION['jeu']);
 }
 
-//Démarrage d'une partie (clic sur "Jouer")
+// Démarrage d'une partie avec les paramètres du niveau choisi
 if (isset($_POST['niveau']) && isset($niveaux[$_POST['niveau']])) {
-    $n = $niveaux[$_POST['niveau']];
+    $niveau = $niveaux[$_POST['niveau']];
 
     $_SESSION['jeu'] = [
-        'nom'        => $n['nom'],
-        'max'        => $n['max'],
-        'essais_max' => $n['essais'],
-        'secret'     => rand(1, $n['max']),  // nombre à deviner
-        'essais'     => [],                  // historique : [nombre, indice]
+        'nom'        => $niveau['nom'],
+        'max'        => $niveau['max'],
+        'essais_max' => $niveau['essais'],
+        'secret'     => rand(1, $niveau['max']),
+        'essais'     => [],
         'fini'       => false,
         'gagne'      => false,
     ];
 }
 
-// Traitement d'une proposition 
+// Traitement d'une proposition
 if (isset($_POST['proposer']) && isset($_SESSION['jeu']) && !$_SESSION['jeu']['fini']) {
-    $jeu = $_SESSION['jeu'];   // copie de travail
-
-    // filter_var renvoie false si ce n'est pas un entier valide
-    $nb = filter_var($_POST['nb'], FILTER_VALIDATE_INT);
+    $jeu = $_SESSION['jeu'];
+    $nb = isset($_POST['nb']) ? filter_var($_POST['nb'], FILTER_VALIDATE_INT) : false;
 
     if ($nb === false || $nb < 1 || $nb > $jeu['max']) {
-        // proposition invalide : on ne compte pas l'essai
-        $message = "Entrez un nombre entier entre 1 et " . $jeu['max'];
-    }
-    else {
+        $message = 'Entrez un nombre entier entre 1 et ' . $jeu['max'];
+    } else {
         if ($nb < $jeu['secret']) {
             $indice = "C'est plus !";
-        }
-        elseif ($nb > $jeu['secret']) {
+        } elseif ($nb > $jeu['secret']) {
             $indice = "C'est moins !";
-        }
-        else {
-            $indice = "Bravo, trouvé !";
-            $jeu['fini']  = true;
+        } else {
+            $indice = 'Bravo, trouvé !';
+            $jeu['fini'] = true;
             $jeu['gagne'] = true;
         }
 
-        // on ajoute l'essai à l'historique
         $jeu['essais'][] = ['nb' => $nb, 'indice' => $indice];
         $message = $indice;
 
-        // plus d'essais et pas trouvé : perdu
         if (!$jeu['gagne'] && count($jeu['essais']) >= $jeu['essais_max']) {
             $jeu['fini'] = true;
-            $message = "Perdu ! Le nombre était " . $jeu['secret'];
+            $message = 'Perdu ! Le nombre était ' . $jeu['secret'];
         }
     }
 
-    $_SESSION['jeu'] = $jeu;   // on remet la copie dans la session
+    $_SESSION['jeu'] = $jeu;
 }
 ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Plus ou moins</title>
-</head>
-<body>
-
 <?php if (!isset($_SESSION['jeu'])): ?>
 
-    <!--ÉCRAN 1 : MENU-->
+    <!-- Choix du niveau de difficulté -->
     <h1>Choisissez votre niveau</h1>
 
-    <?php foreach ($niveaux as $cle => $n): ?>
-        <form method="post" action="">
-            <h2><?php echo $n['nom']; ?></h2>
-            <p>
-                Entre 1 et <?php echo $n['max']; ?><br>
-                <?php echo $n['essais']; ?> essais
-            </p>
-            <!-- le bouton envoie la clé du niveau (facile, normal...) -->
-            <button type="submit" name="niveau" value="<?php echo $cle; ?>">Jouer</button>
-        </form>
-        <hr>
-    <?php endforeach; ?>
+    <div class ="menu">
+    <form method="post" action="">
+        <label for="niveau">Niveau de difficulté :</label>
+        <select name="niveau" id="niveau" required>
+            <option value="">-- Sélectionnez un niveau --</option>
+            <?php foreach ($niveaux as $cle => $niveau): ?>
+                <option value="<?php echo $cle; ?>">
+                    <?php echo $niveau['nom']; ?> (1 à <?php echo $niveau['max']; ?>, <?php echo $niveau['essais']; ?> essais)
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <input type="submit" value="Jouer"></input>
+    </form>
+    </div>
 
 <?php else: ?>
 
-    <!--ÉCRAN 2 : JEU-->
+    <!-- Jeu du plus ou moins -->
     <?php $jeu = $_SESSION['jeu']; ?>
 
     <h1>Niveau <?php echo $jeu['nom']; ?> - entre 1 et <?php echo $jeu['max']; ?></h1>
+    <div class="menu">
     <p>Essais restants : <?php echo $jeu['essais_max'] - count($jeu['essais']); ?> / <?php echo $jeu['essais_max']; ?></p>
 
-    <h2><?php echo $message; ?></h2>
+    <h2 class="hint"><?php echo $message; ?></h2>
 
     <?php if (!$jeu['fini']): ?>
-        <!-- formulaire affiché seulement si la partie continue -->
         <form method="post" action="">
-            <input type="number" name="nb" placeholder="Votre nombre" min="1" max="<?php echo $jeu['max']; ?>">
-            <button type="submit" name="proposer">Proposer</button>
+            <input type="number" name="nb" placeholder="Votre nombre" min="1" max="<?php echo $jeu['max']; ?>" required>
+            <input type="submit" name="proposer" value="Proposer"></button>
         </form>
     <?php endif; ?>
-
-    <h3>Vos essais</h3>
-    <ul>
-        <?php foreach ($jeu['essais'] as $essai): ?>
-            <li><?php echo $essai['nb'] . " : " . $essai['indice']; ?></li>
-        <?php endforeach; ?>
-    </ul>
-
-    <!-- permet de quitter ou de rejouer -->
-    <form method="post" action="">
+        <form method="post" action="">
         <button type="submit" name="menu">
-            <?php echo $jeu['fini'] ? "Rejouer" : "Changer de niveau"; ?>
+            <?php echo $jeu['fini'] ? 'Rejouer' : 'Changer de niveau'; ?>
         </button>
     </form>
+    </div>
 
+    <div class="at_container">
+        <?php foreach ($jeu['essais'] as $essai): ?>
+            <div class ="attempt"><?php echo $essai['nb'] . ' : ' . $essai['indice']; ?></div>
+        <?php endforeach; ?>
+        </div>
 <?php endif; ?>
-
 </body>
 </html>
