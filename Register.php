@@ -1,3 +1,4 @@
+
 <?php
 require 'config.php';
 if(isset($_POST['envoie'])){
@@ -5,6 +6,15 @@ if(isset($_POST['envoie'])){
             $pseudo = htmlspecialchars($_POST['pseudo']);
             $mdp = password_hash($_POST['password'], PASSWORD_DEFAULT);
             $email = htmlspecialchars($_POST['email']);
+             //On regarde si l'email ou le pseudo existe 
+            $verif = $pdo->prepare('SELECT id FROM register WHERE pseudo = ? OR email = ?');
+            $verif->execute(array($pseudo, $email));
+
+             //Si on trouve au moins une ligne, le compte existe déjà
+            if($verif->rowCount() > 0){
+            echo "Ce pseudo ou cet email est déjà utilisé.";
+            }else{
+            
             $insert = $pdo->prepare('INSERT INTO register(pseudo, password, email)VALUES(?, ?, ?)');
             $insert->execute(array($pseudo, $mdp, $email));
             
@@ -17,11 +27,12 @@ if(isset($_POST['envoie'])){
                 $_SESSION['id'] = $recupUser->fetch()['id'];        
             }
             header('Location: homepage.php');    
-                }else{
-                            echo "Vous n'avez pas tout renseigné.";
-                    }   
-    }
-            
+        }
+    }else{
+        echo "Vous n'avez pas tout renseigné.";
+    }   
+    
+}            
 ?>
 <!DOCTYPE html>
 <html lang="en">

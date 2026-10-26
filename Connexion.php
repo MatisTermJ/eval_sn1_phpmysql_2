@@ -3,22 +3,22 @@
     if(isset($_POST['envoie'])){
         if(!empty($_POST['pseudo']) AND !empty($_POST['password']) AND !empty($_POST['email'])){
             $pseudo = htmlspecialchars($_POST['pseudo']);
-            $mdp = password_hash($_POST['password'], PASSWORD_DEFAULT);
+            $mdp = $_POST['password'];
             $email = htmlspecialchars($_POST['email']);
            
-            $recupUser = $pdo->prepare('SELECT * FROM register WHERE pseudo = ? AND password = ? AND email = ?');
-            $recupUser->execute(array($pseudo, $mdp,$email));
+            $recupUser = $pdo->prepare('SELECT * FROM register WHERE pseudo = ? AND email = ?');
+            $recupUser->execute(array($pseudo,$email));
 
             $user = $recupUser->fetch();
 
-            if($user){
+            if($user && password_verify($mdp, $user['password'])){
                 $_SESSION['pseudo'] = $pseudo;
-                $_SESSION['password'] = $mdp;
+                $_SESSION['password'] = ($mdp);
                 $_SESSION['email'] = $email;
                 $_SESSION['id'] = $user['id'];
                 header('Location: homepage.php');
             }else{
-                echo "screugneugneu";
+                echo "Ascreugneugneu";
             }
         }else{
             echo "Vous n'avez pas remplie tout les champs.";
